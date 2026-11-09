@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lakeview Guest House | MIS</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <form id="loginForm" class="card">
+    <h1>Lakeview Guest House</h1>
+    <p>Sign in to the management system</p>
+    <label>Username<input id="u" required autocomplete="username"></label>
+    <label>Password<input id="p" type="password" required autocomplete="current-password"></label>
+    <p id="loginErr" class="err" role="alert"></p>
+    <button class="btn">Sign in</button>
+    <button type="button" id="showReg" class="link">New guest? Create an account</button>
+    <small>Demo logins: reception, manager, accounts, admin or guest. Password: 1234</small>
+  </form>
+
+  <form id="regForm" class="card" hidden>
+    <h1>Create a guest account</h1>
+    <p>Book rooms and share feedback about your stay</p>
+    <label>Full name<input id="rName" required autocomplete="name"></label>
+    <label>Phone<input id="rPhone" required pattern="[0-9+ ]{9,15}" title="Enter a valid phone number" autocomplete="tel"></label>
+    <label>ID / Passport no.<input id="rId" required></label>
+    <label>Username<input id="rUser" required pattern="[a-z0-9_]{3,30}" title="3 to 30 lowercase letters, numbers or underscores" autocomplete="username"></label>
+    <label>Password<input id="rPass" type="password" minlength="6" required autocomplete="new-password"></label>
+    <p id="regErr" class="err" role="alert"></p>
+    <button class="btn">Create account</button>
+    <button type="button" id="showLogin" class="link">Back to sign in</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" hidden>
+  <aside>
+    <div class="brand">Lakeview<span>Guest House, Kigungu</span></div>
+    <nav id="nav"></nav>
+    <div class="who">
+      <span id="whoName"></span>
+      <button id="logout" class="link">Sign out</button>
+    </div>
+  </aside>
+
+  <main>
+    <section id="v-dashboard">
+      <h2>Dashboard</h2>
+      <div class="stats" id="stats"></div>
+      <div id="onlineBox"></div>
+      <h3>Room board</h3>
+      <div class="legend"><i class="free"></i>Available <i class="due"></i>Arriving today <i class="occ"></i>Occupied <i class="maint"></i>Maintenance</div>
+      <div class="rack" id="rack"></div>
+    </section>
+
+    <section id="v-rooms" hidden>
+      <h2>Rooms</h2>
+      <div class="types" id="typeCards"></div>
+      <div class="table"><table>
+        <thead><tr><th>Room</th><th>Type</th><th>Rate per night</th><th>Status</th><th></th></tr></thead>
+        <tbody id="roomsBody"></tbody>
+      </table></div>
+      <form id="roomForm" class="card row" hidden>
+        <h3>Add a room</h3>
+        <label>Room number<input id="rNo" required></label>
+        <label>Type<select id="rType"></select></label>
+        <button class="btn">Add room</button>
+      </form>
+    </section>
+
+    <section id="v-bookings" hidden>
+      <h2>Bookings</h2>
+      <div class="note"><strong>Booking policy.</strong> Remind every guest, whether booking at the desk or online, to pay and report on time. Late payment, or not reporting on the check-in date without notice, may attract a fine.</div>
+      <form id="bookForm" class="card row">
+        <h3>New booking</h3>
+        <label>Guest name<input id="bName" required></label>
+        <label>Phone<input id="bPhone" required pattern="[0-9+ ]{9,15}" title="Enter a valid phone number"></label>
+        <label>ID / Passport no.<input id="bId" required></label>
+        <label>Room type<select id="bType"></select></label>
+        <label>Check-in<input id="bIn" type="date" required></label>
+        <label>Check-out<input id="bOut" type="date" required></label>
+        <label>Room<select id="bRoom" required></select></label>
+        <button class="btn">Save booking</button>
+      </form>
+      <div class="bar2">
+        <label class="chk"><input type="checkbox" id="showCancelled"> Show cancelled bookings</label>
+        <button type="button" id="purgeBtn" class="btn sm danger" hidden>Delete all cancelled</button>
+      </div>
+      <div class="table"><table>
+        <thead><tr><th>#</th><th>Guest</th><th>Room</th><th>Stay</th><th>Source</th><th>Status</th><th></th></tr></thead>
+        <tbody id="bookBody"></tbody>
+      </table></div>
+    </section>
+
+    <section id="v-billing" hidden>
+      <h2>Billing</h2>
+      <label class="pick">Select a stay<select id="billSel"></select></label>
+      <div id="invoice" class="card"></div>
+      <form id="payForm" class="card row">
+        <h3>Record payment</h3>
+        <label>Amount (UGX)<input id="pAmt" type="number" min="1000" step="500" required></label>
+        <label>Method<select id="pMethod"><option>Cash</option><option>Mobile Money</option><option>Card</option></select></label>
+        <button class="btn">Save payment</button>
+        <button type="button" id="printBtn" class="btn ghost">Print invoice</button>
+      </form>
+    </section>
+
+    <section id="v-orders" hidden>
+      <h2>Restaurant and bar</h2>
+      <form id="ordForm" class="card row">
+        <h3>New order, charged to a room</h3>
+        <label>Guest in house<select id="oBook" required></select></label>
+        <label>Item<select id="oItem"></select></label>
+        <label>Quantity<input id="oQty" type="number" min="1" value="1" required></label>
+        <button class="btn">Add order</button>
+      </form>
+      <div class="table"><table>
+        <thead><tr><th>Date</th><th>Room</th><th>Item</th><th>Qty</th><th>Amount</th></tr></thead>
+        <tbody id="ordBody"></tbody>
+      </table></div>
+    </section>
+
+    <section id="v-inventory" hidden>
+      <h2>Inventory</h2>
+      <form id="stkForm" class="card row">
+        <h3>Update stock</h3>
+        <label>Item<select id="sItem"></select></label>
+        <label>Action<select id="sAct"><option value="1">Received from supplier</option><option value="-1">Used / issued</option></select></label>
+        <label>Quantity<input id="sQty" type="number" min="1" required></label>
+        <button class="btn">Update</button>
+      </form>
+      <div class="table"><table>
+        <thead><tr><th>Item</th><th>In stock</th><th>Reorder at</th><th>Status</th></tr></thead>
+        <tbody id="stkBody"></tbody>
+      </table></div>
+    </section>
+
+    <section id="v-reports" hidden>
+      <h2>Reports</h2>
+      <div class="stats" id="repStats"></div>
+      <h3>Payments received, last 7 days</h3>
+      <div class="bars card" id="bars"></div>
+      <h3>Room revenue by type</h3>
+      <div class="table"><table>
+        <thead><tr><th>Room type</th><th>Bookings</th><th>Room revenue</th></tr></thead>
+        <tbody id="typeBody"></tbody>
+      </table></div>
+      <h3>Items to reorder</h3>
+      <div id="lowList" class="card"></div>
+    </section>
+    <section id="v-gbook" hidden>
+      <h2>Book a room</h2>
+      <div class="note"><strong>Booking policy.</strong> Please pay for your reservation and report (check in) on your check-in date. Paying late, or not reporting on time without telling us, may attract a fine.</div>
+      <form id="gBookForm" class="card row">
+        <h3>Reserve your stay</h3>
+        <label>Room type<select id="gType"></select></label>
+        <label>Check-in<input id="gIn" type="date" required></label>
+        <label>Check-out<input id="gOut" type="date" required></label>
+        <p id="gEst" class="est"></p>
+        <button class="btn">Book now</button>
+      </form>
+      <h3>Rooms available for your dates</h3>
+      <div class="types" id="gTypes"></div>
+    </section>
+
+    <section id="v-gmenu" hidden>
+      <h2>Food and drinks</h2>
+      <p class="est" style="margin-bottom:1rem">Order from the restaurant and bar through the front desk. Your order is added to your room bill.</p>
+      <div class="types" id="gMenu"></div>
+    </section>
+
+    <section id="v-gstays" hidden>
+      <h2>My stays</h2>
+      <div class="note"><strong>Booking policy.</strong> Please pay for your reservation and report (check in) on your check-in date. Paying late, or not reporting on time without telling us, may attract a fine.</div>
+      <div id="stayList"></div>
+    </section>
+
+    <section id="v-feedback" hidden>
+      <h2>Guest feedback</h2>
+      <div class="stats" id="fbStats"></div>
+      <h3>Ratings breakdown</h3>
+      <div class="card" id="fbBars"></div>
+      <label class="pick">Show
+        <select id="fbFilter">
+          <option value="all">All ratings</option>
+          <option value="low">1 to 2 stars (needs attention)</option>
+          <option value="mid">3 stars</option>
+          <option value="high">4 to 5 stars</option>
+        </select>
+      </label>
+      <div class="table"><table>
+        <thead><tr><th>Date</th><th>Guest</th><th>Room</th><th>Rating</th><th>Comment</th></tr></thead>
+        <tbody id="fbBody"></tbody>
+      </table></div>
+    </section>
+
+    <section id="v-admin" hidden>
+      <h2>Admin</h2>
+      <h3>Staff accounts</h3>
+      <form id="userForm" class="card row">
+        <label>Full name<input id="uName" required></label>
+        <label>Username<input id="uUser" required pattern="[a-z0-9_]{3,30}" title="3 to 30 lowercase letters, numbers or underscores"></label>
+        <label>Role<select id="uRole"><option value="receptionist">Receptionist</option><option value="manager">Manager</option><option value="accountant">Accountant</option><option value="admin">Administrator</option></select></label>
+        <label>Password<input id="uPass" type="password" minlength="6" required></label>
+        <button class="btn">Add user</button>
+      </form>
+      <div class="table"><table>
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead>
+        <tbody id="userBody"></tbody>
+      </table></div>
+
+      <h3>Room rates and photos</h3>
+      <div class="table"><table>
+        <thead><tr><th>Photo</th><th>Type</th><th>Rate per night (UGX)</th><th>New photo (JPG, PNG or WebP, max 2 MB)</th></tr></thead>
+        <tbody id="adminTypes"></tbody>
+      </table></div>
+
+      <h3>Restaurant menu</h3>
+      <form id="menuForm" class="card row">
+        <label>Item name<input id="mName" required></label>
+        <label>Price (UGX)<input id="mPrice" type="number" min="500" required></label>
+        <label>Photo (optional)<input id="mPhoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <button class="btn">Add item</button>
+      </form>
+      <div class="table"><table>
+        <thead><tr><th>Photo</th><th>Item</th><th>Price (UGX)</th><th>New photo (JPG, PNG or WebP, max 2 MB)</th></tr></thead>
+        <tbody id="menuBody"></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="js/app.js"></script>
+</body>
+</html>
